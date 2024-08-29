@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 
-// Import your local image
-const nitroImage = require('./nitro.jpg');
+const nitroImage = require('./nitro.jpg'); // Ensure the path is correct
 
 export default function LoginScreen({ navigation }) {
     const [email, setEmail] = useState('');
@@ -11,12 +10,6 @@ export default function LoginScreen({ navigation }) {
 
     return (
         <View style={styles.container}>
-            <View style={styles.imageContainer}>
-                {/* <Image
-                    source={nitroImage}
-                    style={styles.image}
-                /> */}
-            </View>
             <View style={styles.overlay}>
                 <Image
                     source={require('./nitro.jpg')} // Replace with your logo URL or local path
@@ -51,14 +44,17 @@ export default function LoginScreen({ navigation }) {
                     style={[styles.button, isPressed ? styles.buttonPressed : null]}
                     onPressIn={() => setIsPressed(true)}
                     onPressOut={() => setIsPressed(false)}
-                    onPress={() => navigation.navigate('Home')}
+                    onPress={() => navigation.navigate('Main')}
                 >
                     <Text style={styles.buttonText}>LOGIN</Text>
                 </TouchableOpacity>
 
                 <Text style={styles.signUpText}>
                     Don’t have an account?{' '}
-                    <Text style={styles.signUpLink} onPress={() => alert('Sign Up pressed')}>
+                    <Text
+                        style={styles.signUpLink}
+                        onPress={() => navigation.navigate('SignUp')} 
+                    >
                         Sign up
                     </Text>
                 </Text>
@@ -73,18 +69,6 @@ const styles = StyleSheet.create({
         backgroundColor: '#f0f4f3', // Light greenish background
         justifyContent: 'center', // Center the content vertically
         alignItems: 'center', // Center the content horizontally
-    },
-    imageContainer: {
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-    },
-    image: {
-        width: '100%',
-        height: '100%',
-        resizeMode: 'cover', // Adjust to fit your image's aspect ratio
     },
     overlay: {
         backgroundColor: 'rgba(255, 255, 255, 0.8)', // Semi-transparent overlay
