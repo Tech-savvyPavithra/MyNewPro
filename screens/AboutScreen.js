@@ -1,10 +1,11 @@
+// SchemesScreen.js
 import React from 'react';
 import { View, Text } from 'react-native';
 
-export default function AboutScreen() {
+export default function SchemesScreen() {
   return (
     <View>
-      <Text>AboutScreen</Text>
+      <Text>Schemes Screen</Text>
     </View>
   );
 }

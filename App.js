@@ -6,7 +6,12 @@ import LoginScreen from './screens/LoginScreen';
 import Main from './screens/Main';
 import SignupScreen from './screens/SignupScreen'; 
 import AlertScreen from './screens/AlertScreen';
-import Phone from './screens/phone';
+import PhoneScreen from './screens/phone';
+import SchemeDetailScreen from './screens/SchemeDetailScreen';
+import ContactScreen from './screens/ContactScreen'; // Make sure to create these screens
+import WeatherScreen from './screens/WeatherScreen'; 
+import NewsScreen from './screens/NewsScreen'; 
+import ChatbotScreen from './screens/ChatbotScreen'; 
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -17,8 +22,13 @@ export default function App() {
         <Stack.Screen name="Main" component={Main} />
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="SignUp" component={SignupScreen} /> 
-        <Stack.Screen name="Alert" component={AlertScreen}/> 
-        <Stack.Screen name="Phone" component={Phone} /> 
+        <Stack.Screen name="Alert" component={AlertScreen}/>
+        <Stack.Screen name="SchemeDetail" component={SchemeDetailScreen} />
+        <Stack.Screen name="Contact" component={ContactScreen} />
+        <Stack.Screen name="Weather" component={WeatherScreen} />
+        <Stack.Screen name="News" component={NewsScreen} />
+        <Stack.Screen name="Chatbot" component={ChatbotScreen} />
+        <Stack.Screen name="Phone" component={PhoneScreen} /> 
       </Stack.Navigator>
     </NavigationContainer>
   );
