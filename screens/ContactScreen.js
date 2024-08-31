@@ -10,22 +10,30 @@ export default function ContactScreen() {
   const [message, setMessage] = useState("");
 
   const sendEmail = () => {
+    // Validate the input fields
+    if (!firstName || !lastName || !email || !number || !message) {
+      Alert.alert("Error", "All fields are required.", [{ text: "OK" }]);
+      return;
+    }
+
     const fullName = `${firstName} ${lastName}`;
     const emailBody = `Name: ${fullName}\nEmail: ${email}\nMobile No: ${number}\nMessage: ${message}`;
 
     const templateParams = {
       name: fullName,
-      email: email,
+      email: email, // User's email
       number: number,
       message: message,
+      to_email: "221001038@rajalakshmi.edu.in", // Common email address
     };
 
     emailjs
       .send("service_id", "template_id", templateParams, "user_id")
       .then((response) => {
+        console.log('Email sent successfu                        lly:', response.status, response.text);
         Alert.alert(
-          "Successful!",
-          "Your Message Successfully Received!",
+          "Success",
+          "Your message has been successfully sent!",
           [{ text: "OK" }]
         );
         // Clear input fields
@@ -36,9 +44,10 @@ export default function ContactScreen() {
         setMessage("");
       })
       .catch((err) => {
+        console.error('Failed to send email:', err); // Log error for debugging
         Alert.alert(
-          "Something Went Wrong",
-          "Your Message Could Not Be Sent!",
+          "Error",
+          "Your message could not be sent. Please try again later.",
           [{ text: "OK" }]
         );
       });

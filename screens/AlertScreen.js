@@ -1,93 +1,61 @@
-// AlertScreen.js
-import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
-import { database } from './firebase'; // Adjust the path accordingly
-import { ref, onValue } from 'firebase/database';
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, Alert, ActivityIndicator } from "react-native";
+import { db } from "./firebaseConfig"; // Ensure firebaseConfig is correctly set up
 
-const AlertScreen = () => {
-  const [alerts, setAlerts] = useState([]);
+export default function AlertScreen() {
+  const [humidity, setHumidity] = useState(null);
+  const [loading, setLoading] = useState(true); // Added loading state
 
   useEffect(() => {
-    const alertsRef = ref(database, 'alerts');
-    onValue(alertsRef, (snapshot) => {
-      const data = snapshot.val();
-      console.log('Snapshot data:', data);
-      const alertsList = data
-        ? Object.keys(data).map((key) => ({
-            id: key,
-            ...data[key],
-          }))
-        : [];
-      setAlerts(alertsList);
-    }, (error) => {
-      console.error('Error fetching data:', error);
-    });
+    const fetchHumidity = async () => {
+      try {
+        db.ref("soilData/sample1/soilHumidity").on("value", (snapshot) => {
+          const humidityValue = snapshot.val();
+          setHumidity(humidityValue);
+          setLoading(false); // Stop loading once data is fetched
+
+          // Check if humidity is less than 30 and trigger an alert
+          if (humidityValue < 30) {
+            Alert.alert(
+              "Low Humidity Alert",
+              `The soil humidity is too low: ${humidityValue}%`,
+              [{ text: "OK" }]
+            );
+          }
+        });
+      } catch (error) {
+        setLoading(false); // Stop loading if an error occurs
+        console.error("Error fetching humidity: ", error);
+      }
+    };
+
+    fetchHumidity();
+
+    // Clean up the listener when the component unmounts
+    return () => db.ref("soilData/sample1/soilHumidity").off("value");
   }, []);
-  
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Alerts</Text>
-      {alerts.length > 0 ? (
-        <FlatList
-          data={alerts}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View style={styles.alertContainer}>
-              <Text style={styles.title}>{item.title}</Text>
-              <Text style={styles.message}>{item.message}</Text>
-              <Text style={styles.timestamp}>
-                {new Date(item.timestamp).toLocaleString()}
-              </Text>
-            </View>
-          )}
-        />
+      {loading ? (
+        <ActivityIndicator size="large" color="#0000ff" /> // Loading indicator
       ) : (
-        <Text style={styles.noAlertsText}>No alerts available</Text>
+        <Text style={styles.text}>
+          Current Soil Humidity: {humidity !== null ? `${humidity}%` : "No data available"}
+        </Text>
       )}
     </View>
   );
-};
-
-//export default AlertScreen;
-
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 16,
-    backgroundColor: '#fff',
+    padding: 20,
+    justifyContent: "center",
+    alignItems: "center",
   },
-  header: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 16,
-  },
-  alertContainer: {
-    marginBottom: 16,
-    padding: 16,
-    backgroundColor: '#f9f9f9',
-    borderRadius: 8,
-  },
-  title: {
+  text: {
     fontSize: 18,
-    fontWeight: 'bold',
-  },
-  message: {
-    fontSize: 16,
-    marginVertical: 8,
-  },
-  timestamp: {
-    fontSize: 14,
-    color: '#777',
-  },
-  noAlertsText: {
-    fontSize: 18,
-    color: '#777',
-    textAlign: 'center',
-    marginTop: 50,
   },
 });
-
-export default AlertScreen;
-
