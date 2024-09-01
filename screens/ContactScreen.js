@@ -17,20 +17,21 @@ export default function ContactScreen() {
     }
 
     const fullName = `${firstName} ${lastName}`;
-    const emailBody = `Name: ${fullName}\nEmail: ${email}\nMobile No: ${number}\nMessage: ${message}`;
-
     const templateParams = {
       name: fullName,
-      email: email, // User's email
+      email: email,
       number: number,
       message: message,
-      to_email: "221001038@rajalakshmi.edu.in", // Common email address
+      to_email: "221001038@rajalakshmi.edu.in", // Change to your recipient email
     };
 
+    // Log templateParams for debugging
+    console.log('Sending email with params:', templateParams);
+
     emailjs
-      .send("service_id", "template_id", templateParams, "user_id")
+      .send("service_hq7uqp4", "template_oogp3xp", templateParams, "GJP9n-vQDPeQu2vXa")
       .then((response) => {
-        console.log('Email sent successfu                        lly:', response.status, response.text);
+        console.log('Email sent successfully:', response.status, response.text);
         Alert.alert(
           "Success",
           "Your message has been successfully sent!",
@@ -89,7 +90,7 @@ export default function ContactScreen() {
         multiline
         numberOfLines={4}
       />
-      <Button title="Send" onPress={sendEmail} />
+      <Button title="Send" onPress={sendEmail} color="#388e3c" />
     </View>
   );
 }
@@ -99,10 +100,11 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     justifyContent: "center",
+    backgroundColor: '#f0f4f1', // Light green background for better contrast
   },
   input: {
     height: 40,
-    borderColor: "#ccc",
+    borderColor: "#388e3c", // Green border color
     borderWidth: 1,
     marginBottom: 10,
     paddingHorizontal: 8,
@@ -110,7 +112,7 @@ const styles = StyleSheet.create({
   },
   textArea: {
     height: 100,
-    borderColor: "#ccc",
+    borderColor: "#388e3c", // Green border color
     borderWidth: 1,
     marginBottom: 10,
     paddingHorizontal: 8,

@@ -1,4 +1,6 @@
 {
+  "name": "MyNewPro", 
+  "displayName": "MyNewPro",
   "expo": {
     "name": "MyNewPro",
     "slug": "MyNewPro",

@@ -1,7 +1,6 @@
 // SchemesScreen.js
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, Animated } from 'react-native';
-import { Easing } from 'react-native-reanimated';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ScrollView } from 'react-native';
 
 // Dummy data for schemes with logos
 const schemes = [
@@ -14,45 +13,28 @@ const schemes = [
 ];
 
 function SchemesScreen({ navigation }) {
-  const scrollY = new Animated.Value(0);
-
   const navigateToSchemeDetail = (schemeId) => {
     navigation.navigate('SchemeDetail', { schemeId });
   };
 
   const renderItem = ({ item }) => {
-    const scale = scrollY.interpolate({
-      inputRange: [-1, 0, 150],
-      outputRange: [1, 1, 1.05],
-      extrapolate: 'clamp',
-    });
-
     return (
       <TouchableOpacity style={styles.item} onPress={() => navigateToSchemeDetail(item.id)}>
-        <Animated.View style={{ transform: [{ scale }] }}>
-          <Image source={item.logo} style={styles.logo} />
-        </Animated.View>
+        <Image source={item.logo} style={styles.logo} />
         <Text style={styles.title}>{item.title}</Text>
       </TouchableOpacity>
     );
   };
 
   return (
-    <Animated.ScrollView
-      style={styles.container}
-      onScroll={Animated.event(
-        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-        { useNativeDriver: true }
-      )}
-      scrollEventThrottle={16}
-    >
+    <ScrollView style={styles.container}>
       <Text style={styles.header}>Available Schemes</Text>
       <FlatList
         data={schemes}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
       />
-    </Animated.ScrollView>
+    </ScrollView>
   );
 }
 

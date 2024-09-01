@@ -1,48 +1,110 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Alert, ActivityIndicator } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import { View, Text, StyleSheet, ActivityIndicator } from "react-native";
 import { db } from "./firebaseConfig"; // Ensure firebaseConfig is correctly set up
+import { ref, onValue } from 'firebase/database'; // Import necessary database functions
 
 export default function AlertScreen() {
-  const [humidity, setHumidity] = useState(null);
-  const [loading, setLoading] = useState(true); // Added loading state
+  const [data, setData] = useState({ soilmoisture: null, humidity: null, temp: null });
+  const [loading, setLoading] = useState(true);
+  const [soilMoistureReadings, setSoilMoistureReadings] = useState([]);
+  const [alerts, setAlerts] = useState([]); // State to store alert messages
+  const prevDataRef = useRef({}); // Ref to store the previous data values
+
+  // Function to handle alerts
+  const handleAlerts = (currentData) => {
+    const { soilmoisture, humidity, temp } = currentData;
+    const newAlerts = [];
+
+    // Critical soil moisture alert
+    if (soilmoisture !== null && soilmoisture < 1024 && prevDataRef.current.soilmoisture !== soilmoisture) {
+      newAlerts.push(`Critical Alert: Low Soil Moisture - The soil moisture is critically low: ${soilmoisture}/4095`);
+    } else if (soilmoisture !== null && soilmoisture >= 1024 && soilmoisture < 2048 && prevDataRef.current.soilmoisture !== soilmoisture) {
+      newAlerts.push(`Warning: Low Soil Moisture - The soil moisture is low: ${soilmoisture}/4095`);
+    } else if (soilmoisture !== null && soilmoisture >= 3072 && soilmoisture <= 4095 && prevDataRef.current.soilmoisture !== soilmoisture) {
+      newAlerts.push(`Warning: High Soil Moisture - The soil moisture is too high: ${soilmoisture}/4095`);
+    }
+
+    // Critical humidity alert
+    if (humidity !== null && humidity < 30 && prevDataRef.current.humidity !== humidity) {
+      newAlerts.push(`Critical Alert: Low Humidity - The humidity is critically low: ${humidity}%`);
+    }
+
+    // High temperature alert
+    if (temp !== null && temp > 35 && prevDataRef.current.temp !== temp) {
+      newAlerts.push(`Warning: High Temperature - The temperature is too high: ${temp}°C`);
+    }
+
+    // Update the alerts state
+    if (newAlerts.length > 0) {
+      setAlerts(newAlerts);
+    }
+
+    // Update the previous data reference
+    prevDataRef.current = currentData;
+  };
+
+  // Function to calculate the average soil moisture
+  const calculateAverageSoilMoisture = (readings) => {
+    if (readings.length === 0) return null;
+    const sum = readings.reduce((acc, reading) => acc + reading, 0);
+    return sum / readings.length;
+  };
 
   useEffect(() => {
-    const fetchHumidity = async () => {
-      try {
-        db.ref("soilData/sample1/soilHumidity").on("value", (snapshot) => {
-          const humidityValue = snapshot.val();
-          setHumidity(humidityValue);
-          setLoading(false); // Stop loading once data is fetched
+    const houseRef = ref(db, "house"); // Listen to changes at the `house` node
 
-          // Check if humidity is less than 30 and trigger an alert
-          if (humidityValue < 30) {
-            Alert.alert(
-              "Low Humidity Alert",
-              `The soil humidity is too low: ${humidityValue}%`,
-              [{ text: "OK" }]
-            );
-          }
+    const handleData = (snapshot) => {
+      const houseData = snapshot.val() || {}; // Ensure `houseData` is an object
+      console.log("Fetched Data: ", houseData); // Debugging: Print the fetched data
+
+      // Update the state with the latest data
+      setData(houseData);
+      setLoading(false);
+
+      // Add the current soil moisture reading to the list
+      if (houseData.soilmoisture !== null) {
+        setSoilMoistureReadings((prevReadings) => {
+          const newReadings = [...prevReadings, houseData.soilmoisture];
+          return newReadings.length > 12 ? newReadings.slice(-12) : newReadings; // Keep only the last 1 hour (12 readings for 5 mins intervals)
         });
-      } catch (error) {
-        setLoading(false); // Stop loading if an error occurs
-        console.error("Error fetching humidity: ", error);
       }
+
+      handleAlerts(houseData);
     };
 
-    fetchHumidity();
+    // Attach the listener
+    const unsubscribe = onValue(houseRef, handleData);
 
     // Clean up the listener when the component unmounts
-    return () => db.ref("soilData/sample1/soilHumidity").off("value");
+    return () => {
+      unsubscribe(); // Unsubscribe from the listener
+    };
   }, []);
 
   return (
     <View style={styles.container}>
       {loading ? (
-        <ActivityIndicator size="large" color="#0000ff" /> // Loading indicator
+        <ActivityIndicator size="large" color="#ffffff" />
       ) : (
-        <Text style={styles.text}>
-          Current Soil Humidity: {humidity !== null ? `${humidity}%` : "No data available"}
-        </Text>
+        <View style={styles.dataContainer}>
+          <Text style={styles.text}>
+            Current Soil Moisture: {data.soilmoisture !== null ? `${data.soilmoisture}/4095` : "No data available"}
+          </Text>
+         
+          <Text style={styles.text}>
+            Current Humidity: {data.humidity !== null ? `${data.humidity}%` : "No data available"}
+          </Text>
+          <Text style={styles.text}>
+            Current Temperature: {data.temp !== null ? `${data.temp}°C` : "No data available"}
+          </Text>
+          {alerts.length > 0 && (
+            <View style={styles.alertContainer}>
+              {alerts.map((alert, index) => (
+                <Text key={index} style={styles.alertText}>{alert}</Text>
+              ))}
+            </View>
+          )}
+        </View>
       )}
     </View>
   );
@@ -52,10 +114,26 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    backgroundColor: "#0b9a3b", // Light green background
+  },
+  dataContainer: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
   text: {
     fontSize: 18,
+    marginVertical: 5,
+    color: "#e8f5e9", // Dark green text
+  },
+  alertContainer: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: "#c8e6c9", // Light green background for alerts
+    borderRadius: 5,
+  },
+  alertText: {
+    fontSize: 16,
+    color: "#d8000c", // Red text for alerts
   },
 });

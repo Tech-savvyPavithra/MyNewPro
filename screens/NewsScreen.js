@@ -6,8 +6,8 @@ import {
   ScrollView,
   TouchableOpacity,
   TextInput,
-  Button,
   StyleSheet,
+  Linking,
 } from "react-native";
 
 const API_KEY = "2119301bc4174631b7b4af97a5ab9d4f";
@@ -15,7 +15,6 @@ const url = "https://newsapi.org/v2/everything?q=";
 
 export default function NewsScreen() {
   const [articles, setArticles] = useState([]);
-  const [curSelectedNav, setCurSelectedNav] = useState(null);
   const [query, setQuery] = useState("Farming");
 
   useEffect(() => {
@@ -32,15 +31,9 @@ export default function NewsScreen() {
     }
   }
 
-  function onNavItemClick(id) {
-    setQuery(id);
-    setCurSelectedNav(id);
-  }
-
   function handleSearch() {
     if (!query) return;
     fetchNews(query);
-    setCurSelectedNav(null);
   }
 
   return (
@@ -51,7 +44,12 @@ export default function NewsScreen() {
         value={query}
         onChangeText={setQuery}
       />
-      <Button title="Search" onPress={handleSearch} />
+      <TouchableOpacity
+        style={styles.searchButton}
+        onPress={handleSearch}
+      >
+        <Text style={styles.searchButtonText}>Search</Text>
+      </TouchableOpacity>
 
       <ScrollView>
         {articles.map((article, index) => (
@@ -63,10 +61,12 @@ export default function NewsScreen() {
               Linking.openURL(article.url);
             }}
           >
-            <Image
-              style={styles.newsImg}
-              source={{ uri: article.urlToImage }}
-            />
+            {article.urlToImage && (
+              <Image
+                style={styles.newsImg}
+                source={{ uri: article.urlToImage }}
+              />
+            )}
             <Text style={styles.newsTitle}>{article.title}</Text>
             <Text style={styles.newsSource}>
               {article.source.name} ·{" "}
@@ -86,20 +86,34 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: "#fff",
+    backgroundColor: "#e8f5e9", // Light green background
   },
   searchInput: {
     height: 40,
-    borderColor: "#ccc",
+    borderColor: "#66bb6a", // Green border
     borderWidth: 1,
     marginBottom: 16,
     paddingHorizontal: 8,
     borderRadius: 4,
+    backgroundColor: "#ffffff", // White background for input
+  },
+  searchButton: {
+    backgroundColor: "#66bb6a", // Green background
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 4,
+    alignItems: "center",
+    marginBottom: 16,
+  },
+  searchButtonText: {
+    color: "#ffffff", // White text
+    fontSize: 16,
+    fontWeight: "bold",
   },
   card: {
     marginBottom: 16,
     padding: 16,
-    backgroundColor: "#f9f9f9",
+    backgroundColor: "#c8e6c9", // Light green background for cards
     borderRadius: 8,
     elevation: 3,
   },
@@ -112,14 +126,15 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "bold",
     marginVertical: 8,
+    color: "#2e7d32", // Dark green text
   },
   newsSource: {
     fontSize: 14,
-    color: "#888",
+    color: "#388e3c", // Medium green text
     marginBottom: 8,
   },
   newsDesc: {
     fontSize: 16,
-    color: "#333",
+    color: "#1b5e20", // Darker green text
   },
 });

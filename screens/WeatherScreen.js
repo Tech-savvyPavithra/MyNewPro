@@ -8,8 +8,9 @@ import {
   Alert,
   ScrollView,
   StyleSheet,
+  TouchableOpacity,
 } from "react-native";
-import Geolocation from "@react-native-community/geolocation";
+import * as Location from 'expo-location';
 import axios from "axios";
 
 const API_KEY = "baab8386300502783224917a407c8fd3"; // Your OpenWeatherMap API Key
@@ -22,37 +23,37 @@ const WeatherScreen = () => {
   const createWeatherCard = (cityName, weatherItem, index) => {
     if (index === 0) {
       return (
-        <View style={styles.details}>
+        <View style={styles.details} key={index}>
           <Text style={styles.headerText}>
             {cityName} ({weatherItem.dt_txt.split(" ")[0]})
           </Text>
-          <Text>
+          <Text style={styles.weatherText}>
             Temperature: {(weatherItem.main.temp - 273.15).toFixed(2)}°C
           </Text>
-          <Text>Wind: {weatherItem.wind.speed} M/S</Text>
-          <Text>Humidity: {weatherItem.main.humidity}%</Text>
+          <Text style={styles.weatherText}>Wind: {weatherItem.wind.speed} M/S</Text>
+          <Text style={styles.weatherText}>Humidity: {weatherItem.main.humidity}%</Text>
           <Image
             style={styles.weatherIcon}
             source={{
               uri: `https://openweathermap.org/img/wn/${weatherItem.weather[0].icon}@4x.png`,
             }}
           />
-          <Text>{weatherItem.weather[0].description}</Text>
+          <Text style={styles.weatherText}>{weatherItem.weather[0].description}</Text>
         </View>
       );
     } else {
       return (
         <View style={styles.card} key={index}>
-          <Text>({weatherItem.dt_txt.split(" ")[0]})</Text>
+          <Text style={styles.weatherText}>({weatherItem.dt_txt.split(" ")[0]})</Text>
           <Image
             style={styles.weatherIcon}
             source={{
               uri: `https://openweathermap.org/img/wn/${weatherItem.weather[0].icon}@4x.png`,
             }}
           />
-          <Text>Temp: {(weatherItem.main.temp - 273.15).toFixed(2)}°C</Text>
-          <Text>Wind: {weatherItem.wind.speed} M/S</Text>
-          <Text>Humidity: {weatherItem.main.humidity}%</Text>
+          <Text style={styles.weatherText}>Temp: {(weatherItem.main.temp - 273.15).toFixed(2)}°C</Text>
+          <Text style={styles.weatherText}>Wind: {weatherItem.wind.speed} M/S</Text>
+          <Text style={styles.weatherText}>Humidity: {weatherItem.main.humidity}%</Text>
         </View>
       );
     }
@@ -111,38 +112,25 @@ const WeatherScreen = () => {
     }
   };
 
-  const getUserCoordinates = () => {
-    Geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        const API_URL = `https://api.openweathermap.org/geo/1.0/reverse?lat=${latitude}&lon=${longitude}&limit=1&appid=${API_KEY}`;
-        axios
-          .get(API_URL)
-          .then((response) => {
-            const { name } = response.data[0];
-            getWeatherDetails(name, latitude, longitude);
-          })
-          .catch(() => {
-            Alert.alert(
-              "Error",
-              "An error occurred while fetching the city name!"
-            );
-          });
-      },
-      (error) => {
-        if (error.code === error.PERMISSION_DENIED) {
-          Alert.alert(
-            "Error",
-            "Geolocation request denied. Please reset location permission to grant access again."
-          );
-        } else {
-          Alert.alert(
-            "Error",
-            "Geolocation request error. Please reset location permission."
-          );
-        }
-      }
-    );
+  const getUserCoordinates = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert('Permission denied', 'Allow location access to get weather data');
+      return;
+    }
+
+    let location = await Location.getCurrentPositionAsync({});
+    const { latitude, longitude } = location.coords;
+    const API_URL = `https://api.openweathermap.org/geo/1.0/reverse?lat=${latitude}&lon=${longitude}&limit=1&appid=${API_KEY}`;
+
+    axios.get(API_URL)
+      .then(response => {
+        const { name } = response.data[0];
+        getWeatherDetails(name, latitude, longitude);
+      })
+      .catch(() => {
+        Alert.alert('Error', 'An error occurred while fetching the city name!');
+      });
   };
 
   return (
@@ -154,8 +142,14 @@ const WeatherScreen = () => {
         onChangeText={setCityInput}
         onSubmitEditing={getCityCoordinates}
       />
-      <Button title="Search" onPress={getCityCoordinates} />
-      <Button title="Use My Location" onPress={getUserCoordinates} />
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity style={styles.button} onPress={getCityCoordinates}>
+          <Text style={styles.buttonText}>Search</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.button} onPress={getUserCoordinates}>
+          <Text style={styles.buttonText}>Use My Location</Text>
+        </TouchableOpacity>
+      </View>
       {currentWeather && (
         <View style={styles.weatherContainer}>{currentWeather}</View>
       )}
@@ -170,40 +164,68 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
     padding: 16,
-    backgroundColor: "#fff",
+    backgroundColor: "#e0f2f1", // Light green background
   },
   input: {
-    borderColor: "#ccc",
+    borderColor: "#388e3c", // Darker green border
     borderWidth: 1,
     padding: 8,
     marginBottom: 16,
+    borderRadius: 4,
+    backgroundColor: "#ffffff", // White input background
+  },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 16,
+  },
+  button: {
+    flex: 1,
+    backgroundColor: "#388e3c", // Dark green background
+    padding: 12,
+    borderRadius: 4,
+    marginHorizontal: 8,
+    alignItems: "center",
+  },
+  buttonText: {
+    color: "#ffffff", // White text
+    fontSize: 16,
+    fontWeight: "bold",
   },
   details: {
     padding: 16,
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#c8e6c9", // Light green background for details
     borderRadius: 8,
     alignItems: "center",
   },
   headerText: {
     fontSize: 18,
     fontWeight: "bold",
+    color: "#2e7d32", // Dark green text
   },
   weatherIcon: {
     width: 100,
     height: 100,
   },
-  card: {
-    padding: 16,
-    backgroundColor: "#f0f0f0",
-    borderRadius: 8,
-    marginVertical: 8,
-    alignItems: "center",
+  weatherText: {
+    fontSize: 16,
+    color: "#1b5e20", // Darker green text
   },
   weatherContainer: {
-    marginVertical: 16,
+    marginBottom: 16,
   },
   forecastContainer: {
-    marginVertical: 16,
+    flexDirection: "row",
+    flexWrap: "wrap",
+    justifyContent: "space-around",
+  },
+  card: {
+    padding: 16,
+    backgroundColor: "#c8e6c9", // Light green background for cards
+    borderRadius: 8,
+    marginBottom: 16,
+    alignItems: "center",
+    width: '45%',
   },
 });
 
