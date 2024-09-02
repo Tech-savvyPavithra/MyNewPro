@@ -170,6 +170,7 @@ const styles = StyleSheet.create({
     borderColor: "#388e3c", // Darker green border
     borderWidth: 1,
     padding: 8,
+    marginTop:45,
     marginBottom: 16,
     borderRadius: 4,
     backgroundColor: "#ffffff", // White input background

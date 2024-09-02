@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Button, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, Button, ScrollView, Image, Linking } from 'react-native';
 import { schemeDetails } from './schemeDetails'; // Ensure this path is correct
 
 function SchemeDetailScreen({ route, navigation }) {
@@ -10,19 +10,29 @@ function SchemeDetailScreen({ route, navigation }) {
     return (
       <View style={styles.container}>
         <Text style={styles.title}>Scheme not found</Text>
-        <Button title="Back to Schemes" onPress={() => navigation.goBack()} />
+        <Button title="Back to Schemes" onPress={() => navigation.goBack()} color="#0a661e" />
       </View>
     );
   }
 
+  // Function to handle opening the scheme link
+  const handleViewMore = () => {
+    Linking.openURL(scheme.link);
+  };
+
   return (
     <ScrollView style={styles.container}>
-      {/* Display the scheme image */}
       <Image source={scheme.image} style={styles.image} />
 
       <Text style={styles.title}>{scheme.title}</Text>
       <Text style={styles.description}>{scheme.description}</Text>
-      <Button title="Back to Schemes" onPress={() => navigation.goBack()} color="#0a661e" />
+
+      {/* Buttons Container */}
+      <View style={styles.buttonContainer}>
+        <Button title="Back to Schemes" onPress={() => navigation.goBack()} color="#0a661e" />
+        <View style={styles.buttonSpacer} />
+        <Button title="View More" onPress={handleViewMore} color="#0a661e" />
+      </View>
     </ScrollView>
   );
 }
@@ -37,6 +47,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 200,
     resizeMode: 'cover',
+    marginTop:35,
     marginBottom: 16,
   },
   title: {
@@ -50,6 +61,14 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     lineHeight: 24,
     color: '#333', // Dark grey for readability
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 16,
+  },
+  buttonSpacer: {
+    width: 10, // Gap between the buttons
   },
 });
 

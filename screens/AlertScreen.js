@@ -15,13 +15,11 @@ export default function AlertScreen() {
     const { soilmoisture, humidity, temp } = currentData;
     const newAlerts = [];
 
-    // Critical soil moisture alert
-    if (soilmoisture !== null && soilmoisture < 1024 && prevDataRef.current.soilmoisture !== soilmoisture) {
-      newAlerts.push(`Critical Alert: Low Soil Moisture - The soil moisture is critically low: ${soilmoisture}/4095`);
-    } else if (soilmoisture !== null && soilmoisture >= 1024 && soilmoisture < 2048 && prevDataRef.current.soilmoisture !== soilmoisture) {
-      newAlerts.push(`Warning: Low Soil Moisture - The soil moisture is low: ${soilmoisture}/4095`);
-    } else if (soilmoisture !== null && soilmoisture >= 3072 && soilmoisture <= 4095 && prevDataRef.current.soilmoisture !== soilmoisture) {
-      newAlerts.push(`Warning: High Soil Moisture - The soil moisture is too high: ${soilmoisture}/4095`);
+    // Soil moisture alert
+    if (soilmoisture !== null && soilmoisture < 2700 && prevDataRef.current.soilmoisture !== soilmoisture) {
+      // No alert for soil moisture less than 2700
+    } else if (soilmoisture !== null && soilmoisture >= 2700 && prevDataRef.current.soilmoisture !== soilmoisture) {
+      newAlerts.push(`Warning: The soil moisture is high: ${soilmoisture}/4095`);
     }
 
     // Critical humidity alert
@@ -90,7 +88,6 @@ export default function AlertScreen() {
           <Text style={styles.text}>
             Current Soil Moisture: {data.soilmoisture !== null ? `${data.soilmoisture}/4095` : "No data available"}
           </Text>
-         
           <Text style={styles.text}>
             Current Humidity: {data.humidity !== null ? `${data.humidity}%` : "No data available"}
           </Text>

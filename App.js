@@ -12,6 +12,7 @@ import ContactScreen from './screens/ContactScreen'; // Make sure to create thes
 import WeatherScreen from './screens/WeatherScreen'; 
 import NewsScreen from './screens/NewsScreen'; 
 import ChatbotScreen from './screens/ChatbotScreen'; 
+import CropScreen from './screens/CropScreen';
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -19,16 +20,17 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator initialRouteName="Login">
         <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
-        <Stack.Screen name="Main" component={Main} />
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="SignUp" component={SignupScreen} /> 
-        <Stack.Screen name="Alert" component={AlertScreen}/>
-        <Stack.Screen name="SchemeDetail" component={SchemeDetailScreen} />
-        <Stack.Screen name="Contact" component={ContactScreen} />
-        <Stack.Screen name="Weather" component={WeatherScreen} />
-        <Stack.Screen name="News" component={NewsScreen} />
-        <Stack.Screen name="Chatbot" component={ChatbotScreen} />
-        <Stack.Screen name="Phone" component={PhoneScreen} /> 
+        <Stack.Screen name="Main" component={Main} options={{ headerShown: false }} />
+        <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="SignUp" component={SignupScreen} options={{ headerShown: false }} /> 
+        <Stack.Screen name="Alert" component={AlertScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="SchemeDetail" component={SchemeDetailScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Contact" component={ContactScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Weather" component={WeatherScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="News" component={NewsScreen} options={{ headerShown: false }}  />
+        <Stack.Screen name="Chatbot" component={ChatbotScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="Phone" component={PhoneScreen} options={{ headerShown: false }} /> 
+        <Stack.Screen name="Crop" component={CropScreen} options={{ headerShown: false }} /> 
       </Stack.Navigator>
     </NavigationContainer>
   );

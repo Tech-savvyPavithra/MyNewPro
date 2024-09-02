@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert, Image } from 'react-native';
 import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth } from './firebaseConfig';
-// Import the GoogleSignInButton
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -30,6 +29,10 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
+      <Image
+        source={require('../assets/login1.png')} // Replace with your image path
+        style={styles.logo}
+      />
       <Text style={styles.title}>{isSignUp ? 'Sign Up' : 'Login'}</Text>
       <TextInput
         style={styles.input}
@@ -54,7 +57,12 @@ export default function LoginScreen({ navigation }) {
         style={styles.switchText}
         onPress={() => setIsSignUp(!isSignUp)}
       >
-        {isSignUp ? "Already have an account? Log in" : "Don't have an account? Sign up"}
+        {isSignUp 
+          ? "Already have an account? " 
+          : "Don't have an account? "} 
+        <Text style={styles.switchTextHighlight}>
+          {isSignUp ? 'Log in' : 'Sign up'}
+        </Text>
       </Text>
       {/* Add Google Sign-In Button */}
     </View>
@@ -67,14 +75,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#27ae60', // Updated to green
+    padding: 20,
+  },
+  logo: {
+    width: 320,
+    height: 320,
+    marginBottom: 10, // Space between the image and title
   },
   title: {
-    fontSize: 24,
+    fontSize: 28,
+    fontStyle:'bold',
     marginBottom: 20,
     color: '#fff',
   },
   input: {
-    width: '80%',
+    width: '100%',
     height: 40,
     backgroundColor: '#fff',
     marginBottom: 20,
@@ -82,8 +97,14 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   switchText: {
+    fontSize:19,
     marginTop: 15,
     color: '#fff',
-    textDecorationLine: 'underline',
+    // Optional: to match the underlined style
+  },
+  switchTextHighlight: {
+    fontSize:19,
+    fontWeight: 'bold',
+    color: '#004d00', // Dark green color for the login/signup text
   },
 });

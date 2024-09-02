@@ -94,6 +94,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 16,
     paddingHorizontal: 8,
+    marginTop:45,
     borderRadius: 4,
     backgroundColor: "#ffffff", // White background for input
   },

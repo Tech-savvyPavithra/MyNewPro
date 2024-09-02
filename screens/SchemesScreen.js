@@ -1,16 +1,13 @@
-// SchemesScreen.js
 import React from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, Image, ScrollView } from 'react-native';
+import { schemeDetails } from './schemeDetails'; // Import schemeDetails from the file where it's defined
 
-// Dummy data for schemes with logos
-const schemes = [
-  { id: '1', title: 'Subsidy for Seeds', logo: require('../assets/seeds.jpeg') },
-  { id: '2', title: 'Irrigation Assistance', logo: require('../assets/irrigation.jpeg') },
-  { id: '3', title: 'Crop Insurance', logo: require('../assets/crop.jpg') },
-  { id: '4', title: 'Soil Health Monitoring', logo: require('../assets/images (4).jpeg') },
-  { id: '5', title: 'Fertilizer Assistance', logo: require('../assets/fertilizer.jpeg') },
-  // Add more schemes as needed
-];
+// Extract schemes information from schemeDetails
+const schemes = Object.keys(schemeDetails).map(key => ({
+  id: key,
+  title: schemeDetails[key].title,
+  logo: schemeDetails[key].image,
+}));
 
 function SchemesScreen({ navigation }) {
   const navigateToSchemeDetail = (schemeId) => {
